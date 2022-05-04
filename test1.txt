@@ -1,0 +1,251 @@
+setp 1 database
+setp 2
+nuget instal 
+sqlserver,tools,design
+pm:Scaffold-DbContext "Data Source=SHIVU\SQLEXPRESS;Initial Catalog=employedb;Integrated Security=True;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+set3:
+appsetting code:
+"ConnectionStrings": {
+    "DBConnectionStrings": "Data Source=SHIVU\\SQLEXPRESS;Initial Catalog=employedb;Integrated Security=True;Trusted_Connection=True;"
+  }
+set4:
+startup code:
+services.AddDbContext<employedbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DBConnectionStrings")));
+            services.AddControllersWithViews();
+
+set5:
+add controllers
+
+
+MVC 
+set 1
+database
+set2:
+nuget 
+sqlserver,tools,design,newtonsoft.json,system.net.Json,
+Microsoft.AspNet.WebApi
+Microsoft.AspNet.WebApi.Client
+System.Net.Http
+set3:
+database code
+set4:
+appsetting,startup code
+set5:
+add controlers
+set6:
+private readonly examdbContext _context;
+
+        HttpClient client = new HttpClient();
+          string url = "https://localhost:44308/api/Departments";
+
+2)index
+
+  public async Task<IActionResult> Index()
+        {
+            return View(JsonConvert.DeserializeObject<List<Department>>(await client.GetStringAsync(url)).ToList());
+        }
+
+2)details
+// var department = await _context.Department
+            // .FirstOrDefaultAsync(m => m.Departmentid == id);
+            var department = JsonConvert.DeserializeObject<Department>(await client.GetStringAsync(url + "/" + id));
+
+
+ 
+3)create
+//_context.Add(department);
+                //await _context.SaveChangesAsync();
+                await client.PostAsJsonAsync<Department>(url, department);
+4)edite
+ // var department = await _context.Department.FindAsync(id);
+            var department = JsonConvert.DeserializeObject<Department>(await client.GetStringAsync(url +"/"+ id));
+try
+// _context.Update(department);
+                    //await _context.SaveChangesAsync();
+                    await client.PutAsJsonAsync<Department>(url +"/"+ id.ToString(), department);
+5)delete
+ // var department = await _context.Department
+            //   .FirstOrDefaultAsync(m => m.Departmentid == id);
+            var department = JsonConvert.DeserializeObject<Department>(await client.GetStringAsync(url + "/" + id));
+
+//  var department = await _context.Department.FindAsync(id);
+            //_context.Department.Remove(department);
+            //await _context.SaveChangesAsync();
+            await client.DeleteAsync(url +"/"+ id);
+
+
+
+
+linq code:
+
+namespace storeapp
+{
+    public partial class Form1 : Form
+    {
+        private storeDBEntities storeDBEntities = new storeDBEntities();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            dataGridView3.DataSource = storeDB.items.Select(i => new { i.itemid, i.itemname }).ToList();
+
+        }
+
+        private void btnadd_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            item items = new item();
+            items.itemname = textBox5.Text;
+            storeDB.items.Add(items);
+            storeDB.SaveChanges();
+            dataGridView3.DataSource = storeDB.items.Select(i => new { i.itemid, i.itemname }).ToList();
+            textBox5.Text = "";
+        }
+
+        private void btnGet_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            int itemid = Convert.ToInt32(textBox6.Text);
+            item items = storeDB.items.Find(itemid);
+            textBox5.Text = items.itemname;
+
+
+        }
+
+        private void btnupdate_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            int itemid = Convert.ToInt32(textBox6.Text);
+            item items = storeDB.items.Find(itemid);
+            items.itemname = textBox5.Text;
+            storeDB.SaveChanges();
+            dataGridView3.DataSource = storeDB.items.Select(i => new { i.itemid, i.itemname }).ToList();
+            textBox5.Text = "";
+            textBox6.Text = "";
+
+        }
+
+        private void btndelete_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            int itemid = Convert.ToInt32(textBox6.Text);
+            item item = storeDB.items.Find(itemid);
+            storeDB.items.Remove(item);
+            storeDB.SaveChanges();
+            textBox5.Text = "";
+
+            textBox6.Text = "";
+            dataGridView3.DataSource = storeDB.items.Select(i => new { i.itemid, i.itemname }).ToList();
+        }
+
+        private void Btnsearch_Click(object sender, EventArgs e)
+        {
+            dataGridView3.DataSource = storeDBEntities.items.Where(i => i.itemname.Contains(textBox5.Text)).
+                 Select(i => new { i.itemid, i.itemname }).ToList();
+
+               
+
+        }
+
+        private void Button9_Click(object sender, EventArgs e)
+        {
+            Form2 form2 = new Form2();
+            form2.Show();
+        }
+
+foram 2
+namespace storeapp
+{
+    public partial class Form2 : Form
+    {
+        private storeDBEntities storeDBEntities = new storeDBEntities();
+        public Form2()
+        {
+            InitializeComponent();
+        }
+
+        private void Label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+            storeDBEntities storeDB = new storeDBEntities();
+            comboBox1.DataSource = storeDB.items.Select(i => new { i.itemid, i.itemname }).ToList();
+            comboBox1.ValueMember = "itemid";
+            comboBox1.DisplayMember = "itemname";
+            dataGridView1.DataSource = storeDB.stores.Select(s => new { s.storeid, s.itemid, s.storename }).ToList();
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+           storeDBEntities storeDB = new storeDBEntities();
+            store Store = new store();
+            Store.storename = textBox1.Text;
+            Store.itemid = Convert.ToInt32(comboBox1.SelectedValue);
+            storeDB.stores.Add(Store);
+            storeDB.SaveChanges();
+            textBox1.Text = "";
+            dataGridView1.DataSource = storeDB.stores.Select(s => new { s.storeid, s.itemid, s.storename }).ToList();
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+
+            storeDBEntities storeDB = new storeDBEntities();
+            int storeid = Convert.ToInt32(textBox2.Text);
+            store Store = storeDB.stores.Find(storeid);
+            textBox1.Text = Store.storename;
+            comboBox1.SelectedValue = Store.itemid;
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            int storeid = Convert.ToInt32(textBox2.Text);
+            store Store = storeDB.stores.Find(storeid);
+            Store.storename = textBox1.Text;
+            Store.itemid= Convert.ToInt32(comboBox1.SelectedValue);
+            storeDB.SaveChanges();
+            textBox1.Text = "";
+            textBox2.Text = "";
+            dataGridView1.DataSource = storeDB.stores.Select(s => new { s.storeid, s.itemid, s.storename }).ToList();
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            storeDBEntities storeDB = new storeDBEntities();
+            int storeid = Convert.ToInt32(textBox2.Text);
+            store Store = storeDB.stores.Find(storeid);
+            storeDB.stores.Remove(Store);
+            storeDB.SaveChanges();
+            textBox1.Text = "";
+
+            textBox2.Text = "";
+            dataGridView1.DataSource = storeDB.stores.Select(s => new { s.storeid, s.itemid, s.storename }).ToList();
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+           
+            dataGridView1.DataSource = storeDBEntities.stores.Where(s => s.storename.Contains(textBox1.Text)).
+               Select(s => new { s.storeid, s.storename }).ToList();
+        }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            Form1 form1 = new Form1();
+            form1.Show();
+        }
+    }
+}
+
+        
